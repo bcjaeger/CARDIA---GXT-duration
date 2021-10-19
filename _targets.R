@@ -40,7 +40,7 @@ tar_plan(
   ),
   
   analyses = names(data_gxt_included),
-  boots = seq(0, 25),
+  boots = seq(0, 5),
   imputes = seq(5),
   
   # note: different bootstrapped datasets have different N

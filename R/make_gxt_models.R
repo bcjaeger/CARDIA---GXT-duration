@@ -12,7 +12,6 @@ make_gxt_models <- function(.boot, .impute, .analysis, data){
   conflicted::conflict_prefer("as_flextable", "flextable")
   conflicted::conflict_prefer("lag", "dplyr")
   
-  
   ..data <- filter(data, 
                    boot == .boot, 
                    impute == .impute,
@@ -144,6 +143,8 @@ make_gxt_models <- function(.boot, .impute, .analysis, data){
     select(-variable_duration) %>%
     drop_na() 
   
+  browser()
+  
   model_fits <- model_inputs %>% 
     mutate(
       model = map2(
@@ -155,13 +156,25 @@ make_gxt_models <- function(.boot, .impute, .analysis, data){
             what = lmer,
             args = list(
               data = switch(
-                .y, 
+                .y,
                 'None' = ..data,
                 'Female' = filter(..data, sex == 'Female'),
                 'Male' = filter(..data, sex == 'Male')
-              ), 
+              ),
               formula = as.formula(.x))
           )
+          
+          # mdl_data = switch(
+          #   .y,
+          #   'None' = ..data,
+          #   'Female' = filter(..data, sex == 'Female'),
+          #   'Male' = filter(..data, sex == 'Male')
+          # )
+          # 
+          # mdl <- lmer(
+          #   formula = as.formula(.x),
+          #   data = mdl_data
+          # )
           
           mdl
           
@@ -187,11 +200,12 @@ make_gxt_models <- function(.boot, .impute, .analysis, data){
         .l = list(model, terms, duration_catg),
         .f = function(.x, .y, .z) {
           
+          browser()
+          
           uses_duration <- any(str_detect(.y[[1]], pattern = '^duration'))
           
           if(uses_duration){
             
-            #if(.y[[1]][2] == 'smoke') browser()
             
             out <- 
               ggeffect(.x, terms = .y[[1]]) %>% 
@@ -207,6 +221,7 @@ make_gxt_models <- function(.boot, .impute, .analysis, data){
           
           
           if(!uses_duration)
+            
             out <- ggeffect(.x, terms = .y[[1]]) %>% 
               as_tibble() %>% 
               transmute(age_centered = x,
